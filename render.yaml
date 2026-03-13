@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: fb-text-extractor
+    env: docker
+    region: ohio # Default US region
+    plan: free # Change to starter or higher if needed
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: PUPPETEER_HEADLESS
+        value: new
+      - key: BLOCK_HEAVY_ASSETS
+        value: true

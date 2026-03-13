@@ -1,0 +1,32 @@
+{
+  "name": "fb-text-extractor",
+  "version": "0.1.0",
+  "description": "Simple Express API that extracts post text/description from Facebook posts using Puppeteer.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": [
+    "facebook",
+    "scraper",
+    "puppeteer",
+    "express",
+    "text-extractor"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "puppeteer": "^22.15.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

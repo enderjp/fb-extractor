@@ -1,0 +1,9 @@
+node_modules
+snapshots
+cookies*.txt
+.env
+.git
+.gitignore
+README.md
+Dockerfile
+render.yaml

@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FB Text Extractor — API Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface-hover: #222632;
+      --border: #2d3245;
+      --border-focus: #6366f1;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --green: #22c55e;
+      --green-bg: rgba(34,197,94,.12);
+      --green-border: rgba(34,197,94,.3);
+      --blue: #3b82f6;
+      --blue-bg: rgba(59,130,246,.12);
+      --blue-border: rgba(59,130,246,.3);
+      --orange: #f59e0b;
+      --orange-bg: rgba(245,158,11,.12);
+      --orange-border: rgba(245,158,11,.3);
+      --red: #ef4444;
+      --red-bg: rgba(239,68,68,.12);
+      --red-border: rgba(239,68,68,.3);
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+      background: linear-gradient(180deg, rgba(99,102,241,.06) 0%, transparent 100%);
+    }
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; color: #fff;
+    }
+    .logo h1 {
+      font-size: 18px; font-weight: 700;
+      background: linear-gradient(135deg, #e2e8f0, #94a3b8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo span {
+      font-size: 12px; font-weight: 500;
+      color: var(--text-dim);
+      background: var(--surface);
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+    .server-status {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px rgba(34,197,94,.5);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .5; }
+    }
+
+    /* Main */
+    .main { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+
+    /* Endpoint Card */
+    .endpoint-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .endpoint-card:hover { border-color: var(--border-focus); }
+
+    .endpoint-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background .15s;
+    }
+    .endpoint-header:hover { background: var(--surface-hover); }
+
+    .method-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 600;
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .method-post {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid var(--green-border);
+    }
+    .method-get {
+      background: var(--blue-bg);
+      color: var(--blue);
+      border: 1px solid var(--blue-border);
+    }
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; font-weight: 500;
+      color: var(--text);
+    }
+    .endpoint-desc {
+      font-size: 13px; color: var(--text-muted);
+      margin-left: auto;
+    }
+    .chevron {
+      color: var(--text-dim);
+      transition: transform .2s;
+      font-size: 18px;
+    }
+    .endpoint-card.open .chevron { transform: rotate(180deg); }
+
+    /* Body */
+    .endpoint-body {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding: 20px;
+    }
+    .endpoint-card.open .endpoint-body { display: block; }
+
+    /* Form */
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .required-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+    .type-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      background: rgba(99,102,241,.12);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+    input[type="text"], input[type="number"], textarea {
+      width: 100%;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 10px 14px;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-dim); }
+
+    .optional-fields {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .optional-toggle {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; padding: 10px 14px;
+      background: transparent; border: none;
+      color: var(--text-muted); font-size: 13px; font-weight: 500;
+      cursor: pointer; text-align: left;
+      font-family: 'Inter', sans-serif;
+    }
+    .optional-toggle:hover { background: var(--surface-hover); }
+    .optional-toggle .arrow { transition: transform .2s; font-size: 12px; }
+    .optional-fields.open .arrow { transform: rotate(90deg); }
+    .optional-content {
+      display: none;
+      padding: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .optional-fields.open .optional-content { display: block; }
+
+    .inline-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Execute Button */
+    .btn-execute {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 24px;
+      background: linear-gradient(135deg, var(--accent), #818cf8);
+      color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer;
+      transition: transform .1s, box-shadow .2s;
+      box-shadow: 0 2px 12px rgba(99,102,241,.3);
+    }
+    .btn-execute:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(99,102,241,.45);
+    }
+    .btn-execute:active { transform: translateY(0); }
+    .btn-execute:disabled {
+      opacity: .6; cursor: not-allowed;
+      transform: none !important;
+    }
+    .btn-execute .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: none;
+    }
+    .btn-execute.loading .spinner { display: block; }
+    .btn-execute.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .btn-clear {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 18px;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px; font-weight: 500;
+      cursor: pointer;
+      margin-left: 10px;
+      transition: background .15s, color .15s;
+    }
+    .btn-clear:hover { background: var(--surface-hover); color: var(--text); }
+
+    /* Response */
+    .response-section {
+      margin-top: 24px;
+      display: none;
+    }
+    .response-section.visible { display: block; }
+    .response-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 10px;
+    }
+    .response-title {
+      font-size: 13px; font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .status-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .status-2xx { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .status-4xx { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+    .status-5xx { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+    .response-time {
+      font-size: 12px; color: var(--text-dim);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .response-body {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+      position: relative;
+    }
+    .btn-copy {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 11px; font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background .15s, color .15s;
+    }
+    .btn-copy:hover { background: var(--surface-hover); color: var(--text); }
+
+    /* Health Card */
+    .health-card {
+      margin-top: 16px;
+    }
+    .health-card .endpoint-header { gap: 14px; }
+
+    /* Info section */
+    .info-section {
+      margin-bottom: 28px;
+      padding: 16px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .info-section p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .info-section code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: var(--bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+
+    /* JSON Syntax Highlighting */
+    .json-key { color: #7dd3fc; }
+    .json-string { color: #86efac; }
+    .json-number { color: #fbbf24; }
+    .json-bool { color: #c084fc; }
+    .json-null { color: #94a3b8; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    /* Section title */
+    .section-title {
+      font-size: 12px; font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    /* Extracted text highlight */
+    .extracted-text-box {
+      margin-top: 16px;
+      padding: 16px;
+      background: linear-gradient(135deg, rgba(99,102,241,.08), rgba(168,139,250,.08));
+      border: 1px solid rgba(99,102,241,.25);
+      border-radius: var(--radius-sm);
+      display: none;
+    }
+    .extracted-text-box.visible { display: block; }
+    .extracted-text-label {
+      font-size: 11px; font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 8px;
+    }
+    .extracted-text-content {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">FB</div>
+        <h1>FB Text Extractor</h1>
+        <span>v0.1.0</span>
+      </div>
+      <div class="server-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Connected</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="info-section">
+      <p>
+        Extract text descriptions from Facebook posts. Send a <code>POST</code> request with a Facebook post URL
+        to get the post text, metadata, and thumbnail. Supports posts from <code>facebook.com</code>,
+        <code>fb.com</code>, and <code>fb.watch</code>.
+      </p>
+    </div>
+
+    <div class="section-title">Endpoints</div>
+
+    <!-- POST /api/extract-text -->
+    <div class="endpoint-card open" id="extractCard">
+      <div class="endpoint-header" onclick="toggleCard('extractCard')">
+        <span class="method-badge method-post">POST</span>
+        <span class="endpoint-path">/api/extract-text</span>
+        <span class="endpoint-desc">Extract text from a Facebook post</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="endpoint-body">
+        <form id="extractForm" onsubmit="executeExtract(event)">
+          <div class="form-group">
+            <label class="form-label">
+              <span class="required-dot"></span>
+              url
+              <span class="type-tag">string</span>
+            </label>
+            <input
+              type="text" id="urlInput"
+              placeholder="https://www.facebook.com/page/posts/123456..."
+              required
+            />
+          </div>
+
+          <div class="optional-fields" id="optionalFields">
+            <button type="button" class="optional-toggle" onclick="toggleOptional()">
+              <span class="arrow">▶</span>
+              Optional parameters
+            </button>
+            <div class="optional-content">
+              <div class="inline-fields">
+                <div class="form-group">
+                  <label class="form-label">
+                    timeoutMs
+                    <span class="type-tag">integer</span>
+                  </label>
+                  <input type="number" id="timeoutInput" placeholder="60000" min="3000" max="150000" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">
+                    locale
+                    <span class="type-tag">string</span>
+                  </label>
+                  <input type="text" id="localeInput" placeholder="en-US,en;q=0.9" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-execute" id="executeBtn">
+            <span class="btn-text">▶ Execute</span>
+            <div class="spinner"></div>
+          </button>
+          <button type="button" class="btn-clear" onclick="clearResponse()">Clear</button>
+        </form>
+
+        <!-- Extracted Text Highlight -->
+        <div class="extracted-text-box" id="extractedTextBox">
+          <div class="extracted-text-label">📝 Extracted Text</div>
+          <div class="extracted-text-content" id="extractedTextContent"></div>
+        </div>
+
+        <!-- Response -->
+        <div class="response-section" id="extractResponse">
+          <div class="response-header">
+            <span class="response-title">Response</span>
+            <span class="status-badge" id="extractStatus"></span>
+            <span class="response-time" id="extractTime"></span>
+          </div>
+          <div class="response-body" id="extractBody">
+            <button class="btn-copy" onclick="copyResponse('extractBody')">Copy</button>
+            <code id="extractCode"></code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GET /health -->
+    <div class="endpoint-card health-card" id="healthCard">
+      <div class="endpoint-header" onclick="toggleCard('healthCard')">
+        <span class="method-badge method-get">GET</span>
+        <span class="endpoint-path">/health</span>
+        <span class="endpoint-desc">Server health check</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="endpoint-body">
+        <button type="button" class="btn-execute" id="healthBtn" onclick="executeHealth()">
+          <span class="btn-text">▶ Execute</span>
+          <div class="spinner"></div>
+        </button>
+        <button type="button" class="btn-clear" onclick="clearHealthResponse()">Clear</button>
+
+        <div class="response-section" id="healthResponse">
+          <div class="response-header">
+            <span class="response-title">Response</span>
+            <span class="status-badge" id="healthStatus"></span>
+            <span class="response-time" id="healthTime"></span>
+          </div>
+          <div class="response-body" id="healthBody">
+            <button class="btn-copy" onclick="copyResponse('healthBody')">Copy</button>
+            <code id="healthCode"></code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ─── Card toggle ─────────────────────────────────────
+    function toggleCard(id) {
+      document.getElementById(id).classList.toggle('open');
+    }
+    function toggleOptional() {
+      document.getElementById('optionalFields').classList.toggle('open');
+    }
+
+    // ─── JSON syntax highlighting ────────────────────────
+    function highlightJSON(json) {
+      if (typeof json !== 'string') json = JSON.stringify(json, null, 2);
+      return json.replace(/("(\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+        (match) => {
+          let cls = 'json-number';
+          if (/^"/.test(match)) {
+            cls = /:$/.test(match) ? 'json-key' : 'json-string';
+          } else if (/true|false/.test(match)) {
+            cls = 'json-bool';
+          } else if (/null/.test(match)) {
+            cls = 'json-null';
+          }
+          return `<span class="${cls}">${match}</span>`;
+        }
+      );
+    }
+
+    function statusClass(code) {
+      if (code >= 200 && code < 300) return 'status-2xx';
+      if (code >= 400 && code < 500) return 'status-4xx';
+      return 'status-5xx';
+    }
+
+    // ─── Execute POST /api/extract-text ──────────────────
+    async function executeExtract(e) {
+      e.preventDefault();
+      const btn = document.getElementById('executeBtn');
+      const url = document.getElementById('urlInput').value.trim();
+      if (!url) return;
+
+      const body = { url };
+      const timeoutMs = document.getElementById('timeoutInput').value;
+      const locale = document.getElementById('localeInput').value.trim();
+      if (timeoutMs || locale) {
+        body.options = {};
+        if (timeoutMs) body.options.timeoutMs = parseInt(timeoutMs, 10);
+        if (locale) body.options.locale = locale;
+      }
+
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      const start = performance.now();
+      try {
+        const res = await fetch('/api/extract-text', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const elapsed = ((performance.now() - start) / 1000).toFixed(2);
+        const data = await res.json();
+
+        const section = document.getElementById('extractResponse');
+        section.classList.add('visible');
+
+        document.getElementById('extractStatus').textContent = res.status;
+        document.getElementById('extractStatus').className = 'status-badge ' + statusClass(res.status);
+        document.getElementById('extractTime').textContent = `${elapsed}s`;
+        document.getElementById('extractCode').innerHTML = highlightJSON(data);
+
+        // Show extracted text highlight
+        const textBox = document.getElementById('extractedTextBox');
+        const textContent = document.getElementById('extractedTextContent');
+        if (data.text) {
+          textContent.textContent = data.text;
+          textBox.classList.add('visible');
+        } else {
+          textBox.classList.remove('visible');
+        }
+      } catch (err) {
+        const elapsed = ((performance.now() - start) / 1000).toFixed(2);
+        const section = document.getElementById('extractResponse');
+        section.classList.add('visible');
+        document.getElementById('extractStatus').textContent = 'ERR';
+        document.getElementById('extractStatus').className = 'status-badge status-5xx';
+        document.getElementById('extractTime').textContent = `${elapsed}s`;
+        document.getElementById('extractCode').textContent = `Network error: ${err.message}`;
+        document.getElementById('extractedTextBox').classList.remove('visible');
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    function clearResponse() {
+      document.getElementById('extractResponse').classList.remove('visible');
+      document.getElementById('extractedTextBox').classList.remove('visible');
+    }
+
+    // ─── Execute GET /health ─────────────────────────────
+    async function executeHealth() {
+      const btn = document.getElementById('healthBtn');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      const start = performance.now();
+      try {
+        const res = await fetch('/health');
+        const elapsed = ((performance.now() - start) / 1000).toFixed(2);
+        const data = await res.json();
+
+        const section = document.getElementById('healthResponse');
+        section.classList.add('visible');
+        document.getElementById('healthStatus').textContent = res.status;
+        document.getElementById('healthStatus').className = 'status-badge ' + statusClass(res.status);
+        document.getElementById('healthTime').textContent = `${elapsed}s`;
+        document.getElementById('healthCode').innerHTML = highlightJSON(data);
+      } catch (err) {
+        const elapsed = ((performance.now() - start) / 1000).toFixed(2);
+        const section = document.getElementById('healthResponse');
+        section.classList.add('visible');
+        document.getElementById('healthStatus').textContent = 'ERR';
+        document.getElementById('healthStatus').className = 'status-badge status-5xx';
+        document.getElementById('healthTime').textContent = `${elapsed}s`;
+        document.getElementById('healthCode').textContent = `Network error: ${err.message}`;
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    function clearHealthResponse() {
+      document.getElementById('healthResponse').classList.remove('visible');
+    }
+
+    // ─── Copy to clipboard ──────────────────────────────
+    function copyResponse(bodyId) {
+      const code = document.getElementById(bodyId).querySelector('code');
+      navigator.clipboard.writeText(code.textContent).then(() => {
+        const btn = document.getElementById(bodyId).querySelector('.btn-copy');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      });
+    }
+
+    // ─── Check server status on load ────────────────────
+    (async () => {
+      try {
+        const res = await fetch('/health');
+        if (res.ok) {
+          document.getElementById('statusDot').style.background = 'var(--green)';
+          document.getElementById('statusText').textContent = 'Connected';
+        }
+      } catch {
+        document.getElementById('statusDot').style.background = 'var(--red)';
+        document.getElementById('statusDot').style.boxShadow = '0 0 8px rgba(239,68,68,.5)';
+        document.getElementById('statusText').textContent = 'Disconnected';
+      }
+    })();
+  </script>
+</body>
+</html>
