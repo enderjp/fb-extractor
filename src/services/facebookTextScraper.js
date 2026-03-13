@@ -304,6 +304,8 @@ export const extractPostText = async (rawUrl, options = {}) => {
   try {
     const cookies = await loadFacebookCookies(config.cookiesFilePath);
     if (cookies.length) {
+      const cookieNames = cookies.map(c => c.name).join(', ');
+      console.log(`Loaded ${cookies.length} cookies from ${config.cookiesFilePath}: ${cookieNames}`);
       await page.setCookie(...cookies);
     }
 

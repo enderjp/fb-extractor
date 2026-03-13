@@ -14,6 +14,8 @@ services:
         value: true
       - key: FACEBOOK_COOKIES_PATH
         value: /etc/secrets/cookies.txt
+      - key: PUPPETEER_USER_AGENT
+        value: "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
     secretFiles:
       - name: cookies.txt
         value: "Copiar_aqui_el_contenido_en_Render"
