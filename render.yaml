@@ -12,3 +12,8 @@ services:
         value: new
       - key: BLOCK_HEAVY_ASSETS
         value: true
+      - key: FACEBOOK_COOKIES_PATH
+        value: /etc/secrets/cookies.txt
+    secretFiles:
+      - name: cookies.txt
+        value: "Copiar_aqui_el_contenido_en_Render"
