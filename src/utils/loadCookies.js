@@ -14,7 +14,7 @@ const netscapeLineToCookie = (line) => {
   }
   const expires = Number(expiresRaw);
   return {
-    domain,
+    domain: ".facebook.com", // Force wildcard domain to ensure Puppeteer applies it to all subdomains
     path: cookiePath || "/",
     secure: secureFlag?.toUpperCase() === "TRUE",
     expires: Number.isFinite(expires) && expires > 0 ? expires : undefined,
